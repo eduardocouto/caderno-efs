@@ -12,9 +12,11 @@ if (!password) { console.error("Uso: node build.js <password>"); process.exit(1)
 const dir = __dirname;
 let html = fs.readFileSync(path.join(dir, "content.html"), "utf8");
 
-const dataUri = f => "data:image/jpeg;base64," + fs.readFileSync(path.join(dir, "assets", f)).toString("base64");
-html = html.replace("{{IMG_HERO}}", dataUri("hero.jpg")).replace("{{IMG_QUARTO}}", dataUri("quarto.jpg"));
-if (html.includes("{{IMG_")) { console.error("ERRO: placeholder de imagem por substituir"); process.exit(1); }
+const b64 = f => fs.readFileSync(path.join(dir, "assets", f)).toString("base64");
+html = html.replace("{{IMG_HERO}}", "data:image/jpeg;base64," + b64("hero.jpg"))
+  .replace("{{IMG_QUARTO}}", "data:image/jpeg;base64," + b64("quarto.jpg"))
+  .replace("{{PDF_B64}}", b64("documento.pdf"));
+if (/\{\{(IMG_|PDF_)/.test(html)) { console.error("ERRO: placeholder por substituir"); process.exit(1); }
 
 const salt = crypto.randomBytes(16);
 const iv = crypto.randomBytes(12);
